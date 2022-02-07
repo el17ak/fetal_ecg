@@ -68,8 +68,8 @@ module fetal_ecg(
 	
 	read_mat_file #(.TYPE(0), .SIZE_A(8), .SIZE_B(8), .N_BITS(22)) rf0(.out_matrix(matrix_in));
 
-	transpose_mat #(.SIZE_A(8), .SIZE_B(8), .N_BITS(22)) tb0(.matrix(matrix_in), .out(matrix_out));
+	scalar_multiply_mat #(.SIZE_A(8), .SIZE_B(8), .N_BITS(22)) tb0(.scale(5), .mat(matrix_in), .mat_out(matrix_out));
 
-
+	
 
 endmodule

@@ -8,14 +8,12 @@ module read_mat_file #(
 	output logic[N_BITS-1:0] out_matrix[SIZE_A][SIZE_B]
 );
 	
-	logic[21:0] temp[8][8];
-	
 	initial begin
 		int fd;
 		fd = $fopen("testfile.txt", "r");
 		
 		
-		$readmemh("testfile.txt", temp);
+		$readmemh("testfile.txt", out_matrix);
 	
 		$fclose(fd);
 	end
