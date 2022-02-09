@@ -3,16 +3,15 @@ typedef logic[21:0] reading;
 module multiply_mat #(
 	parameter SIZE_A = 8,
 	parameter SIZE_B = 8, // Common size.
-	parameter SIZE_C = 8,
-	parameter N_BITS = 22
+	parameter SIZE_C = 8
 ) (
-	input logic[N_BITS-1:0] mat_a[SIZE_A][SIZE_B],
-	input logic[N_BITS-1:0] mat_b[SIZE_B][SIZE_C],
-	output logic[N_BITS-1:0] mat_out[SIZE_A][SIZE_C]
+	input integer mat_a[SIZE_A][SIZE_B],
+	input integer mat_b[SIZE_B][SIZE_C],
+	output integer mat_out[SIZE_A][SIZE_C]
 );
 	
 	// Correct size for multiplication is assumed to have been checked
-	logic[63:0] sum = 0;
+	longint sum = 0;
 
 	//TODO: Initialise sum to 0.
 

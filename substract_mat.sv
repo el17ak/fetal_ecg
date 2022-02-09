@@ -1,12 +1,11 @@
 module substract_mat #(
 	parameter SIZE_A = 8,
-	parameter SIZE_B = 8,
-	parameter N_BITS = 22
+	parameter SIZE_B = 8
 )
 (
-	input logic[N_BITS-1:0] mat_a[SIZE_A][SIZE_B],
-	input logic[N_BITS-1:0] mat_b[SIZE_A][SIZE_B],
-	output logic[N_BITS-1:0] out_matrix[SIZE_A][SIZE_B]
+	input integer mat_a[SIZE_A][SIZE_B],
+	input integer mat_b[SIZE_A][SIZE_B],
+	output integer out_matrix[SIZE_A][SIZE_B]
 );
 
 	// Updates when matrix A or B change.

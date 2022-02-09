@@ -1,11 +1,10 @@
 module invert_mat #(
 	parameter SIZE_A = 8,
-	parameter SIZE_B = 8,
-	parameter N_BITS = 22
+	parameter SIZE_B = 8
 )
 (
-	input reading matrix [SIZE_A][SIZE_B],
-	output reading out[SIZE_A][SIZE_B]
+	input integer matrix [SIZE_A][SIZE_B],
+	output integer out[SIZE_A][SIZE_B]
 );
 
 endmodule

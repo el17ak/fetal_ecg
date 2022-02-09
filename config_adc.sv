@@ -1,5 +1,10 @@
+//====================================
+// ADC CONFIGURATION MODULE
+// For the chosen application, we want specific ADC configuration characteristics.
+//====================================
+
 module config_adc(
-	input logic word[16],
+	input logic word[24],
 	output logic SCLK,
 	output logic TFSnot,
 	output logic SDATA
@@ -17,7 +22,7 @@ module config_adc(
 	always @(negedge SCLK) begin
 		if(TFSnot == 0) begin
 			//wait for data hold time to write new bit
-			SDATA = word[15 - i];
+			SDATA = word[23 - i];
 			i++;
 		end
 	end

@@ -1,11 +1,10 @@
 module transpose_mat #(
 	parameter SIZE_A = 8,
-	parameter SIZE_B = 8,
-	parameter N_BITS = 22
+	parameter SIZE_B = 8
 )
 (
-	input logic[N_BITS-1:0] mat[SIZE_A][SIZE_B],
-	output logic[N_BITS-1:0] mat_out[SIZE_B][SIZE_A]
+	input integer mat[SIZE_A][SIZE_B],
+	output integer mat_out[SIZE_B][SIZE_A]
 );
 
 	// Updates when the input matrix changes.

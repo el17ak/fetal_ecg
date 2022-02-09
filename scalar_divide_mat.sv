@@ -1,12 +1,11 @@
 module scalar_divide_mat #(
 	parameter SIZE_A = 8,
-	parameter SIZE_B = 8,
-	parameter N_BITS = 22
+	parameter SIZE_B = 8
 )
 (
-	input logic[N_BITS-1:0] scale,
-	input logic[N_BITS-1:0] matrix[SIZE_A][SIZE_B],
-	output logic[N_BITS-1:0] out_matrix[SIZE_A][SIZE_B]
+	input integer scale,
+	input integer matrix[SIZE_A][SIZE_B],
+	output integer out_matrix[SIZE_A][SIZE_B]
 );
 
 	always_comb begin

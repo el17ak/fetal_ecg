@@ -63,12 +63,18 @@ module fetal_ecg(
 //  Structural coding
 //=======================================================
 
-	logic[21:0] matrix_in[8][8] = '{default:0};
-	logic[21:0] matrix_out[8][8] = '{default:0};
+	//config_adc cf0();
 	
-	read_mat_file #(.TYPE(0), .SIZE_A(8), .SIZE_B(8), .N_BITS(22)) rf0(.out_matrix(matrix_in));
+	//collect_adc_data cd0(.SDATA(), .CASCOUT(), .CASCIN(), .SCLK(), .RFS(), .mat_out());
 
-	scalar_multiply_mat #(.SIZE_A(8), .SIZE_B(8), .N_BITS(22)) tb0(.scale(5), .mat(matrix_in), .mat_out(matrix_out));
+	//accumulate_adc_data ac0();
+	
+	integer matrix_in[8][8] = '{default:0};
+	integer matrix_out[8][8] = '{default:0};
+	
+	read_mat_file #(.TYPE(0), .SIZE_A(8), .SIZE_B(8)) rf0(.out_matrix(matrix_in));
+
+	scalar_multiply_mat #(.SIZE_A(8), .SIZE_B(8)) tb0(.scale(5), .mat(matrix_in), .mat_out(matrix_out));
 
 	
 

@@ -30,9 +30,10 @@ module collect_adc_data(
 			if(((i+1)%32) == 0) begin
 				c++; //Increment the channel counter every 32 bits
 			end
+		end
 		else if((CASCOUT == 1) && (RFS == 0)) begin
 			mat_out[3][31] = SDATA;
-		end else
+		end
 	end
 
 	//For end of each transmission, the next rising edge of SCLK triggers RFS to HIGH.
