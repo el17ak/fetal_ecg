@@ -47,7 +47,9 @@ module fetal_ecg(
 	//////////// GPIO_1, GPIO_1 connect to GPIO Default //////////
 	//inout 		    [33:0]		GPIOB,
 	//input 		     [1:0]		GPIOB_IN,
-	input logic[7:0] scale
+	input integer scale,
+	input logic clk,
+	input logic rst_n
 );
 
 
@@ -69,13 +71,20 @@ module fetal_ecg(
 
 	//accumulate_adc_data ac0();
 	
-	integer matrix_in[8][8] = '{default:0};
-	integer matrix_out[8][8] = '{default:0};
+	integer matrix_a[368][8];
+	//integer matrix_b[8][8] = '{default:0};
+	integer matrix_b[8][368];
+	integer matrix_out[8][368];
 	
-	read_mat_file #(.TYPE(0), .SIZE_A(8), .SIZE_B(8)) rf0(.out_matrix(matrix_in));
-
-	scalar_multiply_mat #(.SIZE_A(8), .SIZE_B(8)) tb0(.scale(5), .mat(matrix_in), .mat_out(matrix_out));
-
+	read_mat_file #(.NAME("filename.txt"), .TYPE(0), .SIZE_A(368), .SIZE_B(8)) rf0(.out_matrix(matrix_a), .clk(clk));
+	//read_mat_file #(.NAME("testfile2.txt"), .TYPE(0), .SIZE_A(8), .SIZE_B(8)) rf1(.out_matrix(matrix_b));
 	
+	//scalar_multiply_mat #(.SIZE_A(8), .SIZE_B(8)) tb0(.scale(5), .mat(matrix_in), .mat_out(matrix_out));
 
+	//multiply_mat #(.SIZE_A(8), .SIZE_B(8), .SIZE_C(8)) mp0(.mat_a(matrix_a), .mat_b(matrix_b), .mat_out(matrix_out));
+	
+	transpose_mat #(.SIZE_A(368), .SIZE_B(8)) tp0 (.mat(matrix_a), .mat_out(matrix_b));
+
+	whiten #(.SIZE_A(8), .SIZE_B(368)) wh0(.clk(clk), .mat(matrix_b), .mat_out(matrix_out), .rst(rst_n));
+	
 endmodule

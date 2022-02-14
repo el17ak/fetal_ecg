@@ -11,7 +11,7 @@ module transpose_mat #(
 	always_comb begin
 		for(int i = 0; i < SIZE_B; i = i + 1) begin
 			for(int j = 0; j < SIZE_A; j = j + 1) begin
-				mat_out[i][j] = mat[j][i];
+				mat_out[i][j] <= mat[j][i];
 			end
 		end
 	end

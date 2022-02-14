@@ -1,5 +1,3 @@
-typedef logic[21:0] reading;
-
 module multiply_mat #(
 	parameter SIZE_A = 8,
 	parameter SIZE_B = 8, // Common size.
@@ -11,7 +9,7 @@ module multiply_mat #(
 );
 	
 	// Correct size for multiplication is assumed to have been checked
-	longint sum = 0;
+	integer sum;
 
 	//TODO: Initialise sum to 0.
 
@@ -20,10 +18,11 @@ module multiply_mat #(
 	// Multiplication process
 		for(int i = 0; i < SIZE_A; i++) begin
 			for(int j = 0; j < SIZE_C; j++) begin
+				sum = 0;
 				for(int k = 0; k < SIZE_B; k++) begin
 					sum = sum + (mat_a[i][k] * mat_b[k][j]);
 				end
-				mat_out[i][j] = sum;
+				mat_out[i][j] <= sum;
 			end
 		end
 	end

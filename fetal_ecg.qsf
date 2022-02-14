@@ -85,4 +85,17 @@ set_global_assignment -name SYSTEMVERILOG_FILE config_adc.sv
 set_global_assignment -name SYSTEMVERILOG_FILE accumulate_adc_data.sv
 set_global_assignment -name SYSTEMVERILOG_FILE data_conversion.sv
 set_global_assignment -name SYSTEMVERILOG_FILE eigenvalue_decomposition.sv
+set_global_assignment -name SYSTEMVERILOG_FILE frobenius_norm.sv
+set_global_assignment -name TEXT_FILE testfile2.txt
+set_global_assignment -name SYSTEMVERILOG_FILE add_mat.sv
+set_global_assignment -name SYSTEMVERILOG_FILE scalar_substract_mat.sv
+set_global_assignment -name SYSTEMVERILOG_FILE find_eigen.sv
+set_global_assignment -name SYSTEMVERILOG_FILE chain_output.sv
+set_global_assignment -name SYSTEMVERILOG_FILE unpacked_to_packed.sv
+set_global_assignment -name SYSTEMVERILOG_FILE eigenloop.sv
+set_global_assignment -name SYSTEMVERILOG_FILE recursive_vector.sv
+set_global_assignment -name SYSTEMVERILOG_FILE convergence_check.sv
+set_global_assignment -name SYSTEMVERILOG_FILE eigencalculation.sv
+set_global_assignment -name SYSTEMVERILOG_FILE init_decomposition.sv
+set_global_assignment -name SYSTEMVERILOG_FILE cov_mat_update.sv
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

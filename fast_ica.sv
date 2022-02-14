@@ -20,16 +20,21 @@ module fast_ica #(
 //	Declaration of intermediary matrices
 //=======================================
 	integer w_prime[SIZE_N][1];
+	integer w_prime_storage[SIZE_N][SIZE_C];
+	
 	integer w_sec_prime[SIZE_N][1];
 	integer w_updated[SIZE_N][1];
 	
 	integer initial_weight_vector[SIZE_N][1];
 	integer sec_weight_vector[SIZE_N][1];
+	integer third_weight_vector[SIZE_N][1];
 	integer column_m[SIZE_M][1];
 	integer sum_squares;
 	
 	integer transposed_weight_vector[1][SIZE_N];
 	integer term_c[1][SIZE_M];
+	integer term_e[SIZE_N][1];
+	integer term_e_prime[SIZE_N][1];
 
 //=======================================
 // Initialisation
@@ -39,12 +44,19 @@ module fast_ica #(
 		for(int i = 0; i < SIZE_N; i++) begin
 			// Randomize the initial weight column vector as a placeholder.
 			randomize(initial_weight_vector[i][0]);
-			sec_weight_vector[i][0] = initial_weight_vector[i][0];
 		end
 		column_m = '{default:1};
 	end
 	
 	// TODO: Alternative with fed in initial_weight_vector[i][0] = unmix_matrix[i][p];
+	
+	always @(p) begin
+		for(int i = 0; i < SIZE_N; i++) begin
+			// Randomize the initial weight column vector as a placeholder.
+			randomize(initial_weight_vector[i][0]);
+			sec_weight_vector[i][0] = initial_weight_vector[i][0];
+		end
+	end
 	
 //=======================================
 // First derivative of w[p+1]
@@ -86,19 +98,45 @@ module fast_ica #(
 	multiply_mat #(.SIZE_A(SIZE_N), .SIZE_B(1), .SIZE_C(1)) mp3(.mat_a(initial_weight_vector), .mat_b(multiplied_term_c), .mat_out(term_b));
 	
 	// (N x 1)
-	substract_mat #(.SIZE_A(SIZE_N), .SIZE_B(1)) sb0(.mat_a(term_a), .mat_b(term_b), .out_matrix(w_prime));
+	substract_mat #(.SIZE_A(SIZE_N), .SIZE_B(1)) sb0(.mat_a(term_a), .mat_b(term_b), .mat_out(w_prime));
 	
+	always @(w_prime) begin
+		for(int i = 0; i < SIZE_N; i++) begin
+			w_prime_storage[i][p] = w_prime[i][0];
+			if(p == 2) begin
+				sec_weight_vector[i][0] = w_prime_storage[i][p-1];
+			end
+			else if(p == 3) begin
+				sec_weight_vector[i][0] = w_prime_storage[i][p-1];
+				third_weight_vector[i][0] = w_prime_storage[i][p-2];
+			end
+		end
+	end
 	
 //======================================
 // Second derivative of w[p+1]
 //======================================
 	
 	multiply_mat #(.SIZE_A(1), .SIZE_B(SIZE_N), .SIZE_C(1)) mp4(.mat_a(transposed_weight_vector), .mat_b(sec_weight_vector), .mat_out(term_d));
+	multiply_mat #(.SIZE_A(1), .SIZE_B(SIZE_N), .SIZE_C(1)) mp41(.mat_a(transposed_weight_vector), .mat_b(third_weight_vector), .mat_out(term_d_prime));
 	
 	multiply_mat #(.SIZE_A(SIZE_N), .SIZE_B(1), .SIZE_C(1)) mp5(.mat_a(sec_weight_vector), .mat_b(term_d), .mat_out(term_e));
+	multiply_mat #(.SIZE_A(SIZE_N), .SIZE_B(1), .SIZE_C(1)) mp51(.mat_a(third_weight_vector), .mat_b(term_d_prime), .mat_out(term_e_prime));
 	
 	integer sum[SIZE_N][1];
-	substract_mat #(.SIZE_A(SIZE_N), .SIZE_B(1)) sb1(.mat_a(initial_weight_vector), .mat_b(sum), .out_matrix(w_sec_prime));
+	always @(term_e) begin
+		sum = '{default:0};
+		for(int i = 0; i < SIZE_N; i++) begin
+			if(p == 2) begin
+				sum[i][0] = sum[i][0] + term_e[i][0];
+			end
+			else if(p == 3) begin
+				sum[i][0] = sum[i][0] + term_e[i][0] + term_e_prime[i][0];
+			end
+		end
+	end
+	
+	substract_mat #(.SIZE_A(SIZE_N), .SIZE_B(1)) sb1(.mat_a(initial_weight_vector), .mat_b(sum), .mat_out(w_sec_prime));
 	
 //=======================================
 // Final calculation of w[p+1]
@@ -111,8 +149,9 @@ module fast_ica #(
 		end
 	end
 	
-	scalar_divide_mat #(.SIZE_A(SIZE_N), .SIZE_B(1)) sd0(.scale(sqrt(sum_squares)), .matrix(w_sec_prime), .out_matrix(w_updated));
+	scalar_divide_mat #(.SIZE_A(SIZE_N), .SIZE_B(1)) sd0(.scale(sqrt(sum_squares)), .mat(w_sec_prime), .mat_out(w_updated));
 	
+	integer unmixer[SIZE_N][SIZE_C];
 	
 	// When the weight vector is fully calculated.
 	always @(w_updated) begin
@@ -122,15 +161,21 @@ module fast_ica #(
 			// Copy it to the initial weight vector as well to trigger next cycle of algorithm. 
 			initial_weight_vector[i][0] = w_updated[i][0];
 		end
-		// Increase p to switch to the next component calculation.
-		p = p + 1;
+		if(p < SIZE_C) begin
+			// Increase p to switch to the next component calculation.
+			p = p + 1;
+		end
+		else begin
+			for(int i = 0; i < SIZE_N; i++) begin
+				for(int j = 0; j < SIZE_C; j++) begin
+					unmixer[i][j] = unmix_matrix[i][j];
+				end
+			end
+		end
 	end
 	
-//=======================================
-// Final extraction: S = (W^T) * X
-//=======================================
-
-	transpose_mat #(.SIZE_A(SIZE_N), .SIZE_B(SIZE_C)) tp15(.mat(unmix_matrix), .mat_out(transposed_unmix_matrix));
+	//S = (W^T) * X
+	transpose_mat #(.SIZE_A(SIZE_N), .SIZE_B(SIZE_C)) tp15(.mat(unmixer), .mat_out(transposed_unmix_matrix));
 
 	multiply_mat #(.SIZE_A(SIZE_C), .SIZE_B(SIZE_N), .SIZE_C(SIZE_M)) m15(.mat_a(transposed_unmix_matrix), .mat_b(matrix), .mat_out(ic_matrix));
 	
