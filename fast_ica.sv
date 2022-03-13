@@ -3,19 +3,35 @@
 //  Anna Kennedy, University of Leeds
 //=======================================
 
+import fp_double::*;
+
 module fast_ica #(
-	parameter SIZE_N = 8,
-	parameter SIZE_M = 512,
-	parameter SIZE_C = 3
+	parameter SIZE_N = 8, //Number of provided source signals
+	parameter SIZE_M = 512, //Number of samples per signal to process
+	parameter N_BITS = 32, //Number of bits per sample
+	parameter SIZE_C = 3 //Number of source components to separate
 )
 (
-	input integer matrix[SIZE_N][SIZE_M], // N x M
-	output integer unmix_matrix[SIZE_N][SIZE_C], // N x C
-	output integer ic_matrix[SIZE_C][SIZE_M] // C x M
+	input logic clk,
+	input logic rst,
+	input logic start,
+	input logic signed[N_BITS-1:0] matrix[SIZE_N][SIZE_M], //N x M
+	output double unmix_matrix[SIZE_N][SIZE_C], //N x C
+	output double ic_matrix[SIZE_C][SIZE_M], //C x M
+	output logic busy,
+	output logic valid
 );
 
-	logic[7:0] p;
-	
+	genvar i;
+	//Produce one unmixing component per independent component to extract
+	generate
+		for(i = 0; i < SIZE_C; i++) begin: unmix_gen
+			unmixing_loop #(.SIZE_N(), .SIZE_M(), .N_BITS(), .COUNT(i)) ul(.clk(), .rst(), .start(), .data_mat(), .converged_vector(), .state(), .valid());
+		end
+	endgenerate
+
+
+/**	
 //=======================================
 //	Declaration of intermediary matrices
 //=======================================
@@ -199,5 +215,6 @@ module fast_ica #(
 		if (x >= 0.0) return(x);
 		else return(-x);
 	endfunction
+	**/
 
 endmodule

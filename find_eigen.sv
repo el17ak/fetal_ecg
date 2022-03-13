@@ -1,58 +1,117 @@
+import fp_double::*;
+
 module find_eigen #(
 	parameter SIZE_N = 8,
-	parameter MAX_ITER = 100
+	parameter MAX_ITER = 100 //Number of bits for input covariance matrix (signed)
 )
 (
 	input logic clk,
 	input logic rst,
-	input integer cov_matrix[SIZE_N][SIZE_N],
-	output integer eigenvalue[1][1],
-	output integer eigenvector[SIZE_N][1],
-	output integer cov_matrix_out[SIZE_N][SIZE_N]
+	input integer scale,
+	input logic start,
+	input double cov_matrix[SIZE_N][SIZE_N],
+	output double eigenvalue[1][1],
+	output double eigenvector[SIZE_N][1],
+	output double cov_matrix_out[SIZE_N][SIZE_N],
+	output logic valid
 );
 
-	integer vector_init[SIZE_N][1];
-	integer first_vector[SIZE_N][1];
+	double vector_init[SIZE_N][1]; //Initial random 8-bit signed vector
+	double first_vector[SIZE_N][1];
+	double second_vector[SIZE_N][1]; //86-bit
 	
-	integer vectors[MAX_ITER][SIZE_N][1];
-	
-	integer copy_cov_matrix[SIZE_N][SIZE_N];
-	integer copy_vectors[MAX_ITER][SIZE_N][1];
+	double copy_vector[SIZE_N][1];
 	
 	integer count_n;
 	integer count_k;
 	
-	integer vectors_input[MAX_ITER][SIZE_N][1];
-	integer vectors_output[MAX_ITER][SIZE_N][1];
+	double vectors_input[2][SIZE_N][1];
+	double vector_output[SIZE_N][1];
 
-	integer eigenvalue_hold;
+	double eigenvalue_hold;
+	logic start_init;
+	logic start_loop;
+	logic start_val;
+	logic start_mat;
+	logic[3:0] state;
 	
-	
-	initial begin
-		for(int i = 0; i < SIZE_N; i++) begin
-			vector_init[i][0] <= $random();
-		end
-	end
-	
-	assign vectors_input[0] = vector_init;
-	assign vectors_input[1] = first_vector;
-	
-	init_decomposition #(.SIZE_N(SIZE_N)) in_de(.clk(clk), .rst(rst), .timed_matrix(cov_matrix), .vector_init(vector_init), .first_vector(first_vector));
-	
-	eigenloop #(.SIZE_N(SIZE_N), .MAX_ITER(MAX_ITER)) ei_lo(.clk(clk), .rst(rst), .timed_matrix(cov_matrix), .vectors_in(vectors_input), .vectors_out(vectors_output), .out_k(count_k));
+	assign vectors_input[0] = first_vector;
+	assign vectors_input[1] = second_vector;
 
-	eigencalculation #(.SIZE_N(SIZE_N)) ei_ca(.clk(clk), .rst(rst), .timed_matrix(cov_matrix), .vector(copy_vectors[count_k]), .eigenvalue(eigenvalue_hold));
+	assign start_init = start;
 	
-	cov_mat_update #(.SIZE_N(SIZE_N)) co_up(.clk(clk), .rst(rst), .vector(copy_vectors[count_n]), .eigenvalue(eigenvalue), .count_n(count_n), .cov_matrix_in(cov_matrix), .cov_matrix_out(cov_matrix_out));
+	
+	
+	//Determine first two vectors to launch the loop with
+	init_decomposition #(.SIZE_N(SIZE_N)) in_de(.clk(clk), .rst(rst), 
+		.timed_matrix(cov_matrix), .first_vector(first_vector), 
+		.second_vector(second_vector), .start(start_init), .valid(state[0]));
+	
+	//Launch loop with initial vectors, keep in state until convergence
+	eigenloop #(.SIZE_N(SIZE_N), .MAX_ITER(MAX_ITER)) ei_lo(.clk(clk), .rst(rst), 
+		.timed_matrix(cov_matrix), .vectors_in(vectors_input), 
+		.vector_out(vector_output), .out_k(count_k), .scale(scale), 
+		.start(start_loop), .valid(state[1]));
+
+	//Calculate corresponding eigenvalue of obtained (converged) eigenvector
+	eigencalculation #(.SIZE_N(SIZE_N)) ei_ca(.clk(clk), .rst(rst), 
+		.timed_matrix(cov_matrix), .vector(copy_vector), 
+		.eigenvalue(eigenvalue_hold), .start(start_val), .valid(state[2]));
+	
+	//Finally, remove influence of found eigenpair from data matrix
+	cov_mat_update #(.SIZE_N(SIZE_N)) co_up(.clk(clk), .rst(rst), 
+		.vector(copy_vector), .eigenvalue(eigenvalue), .count_n(count_n), 
+		.cov_matrix_in(cov_matrix), .cov_matrix_out(cov_matrix_out), 
+		.start(start_mat), .valid(state[3]));
 	
 	always_ff @(posedge clk) begin
-		if(rst == 0) begin
-			copy_vectors <= '{default:0};
+		valid <= 0;
+		start_loop <= 0;
+		start_val <= 0;
+		start_mat <= 0;
+		if(start == 0) begin
+			copy_vector <= '{default:0};
+			start_loop <= 0;
+			start_val <= 0;
+			start_mat <= 0;
 		end
-		else begin
-			copy_vectors <= vectors_output;
-			eigenvalue[0][0] <= eigenvalue_hold;
+		else if(start == 1) begin
+			case(state)
+				
+				4'b0000: begin
+					start_loop <= 0;
+					start_val <= 0;
+					start_mat <= 0;
+				end
+				
+				4'b0001: begin //Initialisation complete
+					start_loop <= 1;
+					start_val <= 0;
+					start_mat <= 0;
+				end
+				
+				4'b0011: begin //Loop completed, converged
+					copy_vector <= vector_output;
+					eigenvector <= vector_output;
+					start_val <= 1;
+					start_mat <= 0;
+				end
+				
+				4'b0111: begin
+					eigenvalue[0][0] <= eigenvalue_hold;
+					start_mat <= 1;
+				end
+				
+				4'b1111: begin
+					valid <= 1;
+					start_loop <= 0;
+					start_val <= 0;
+					start_mat <= 0;
+				end
+				
+			endcase
 		end
 	end
+	
 	
 endmodule

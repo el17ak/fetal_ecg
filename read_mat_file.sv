@@ -6,10 +6,10 @@ module read_mat_file #(
 )
 (
 	input logic clk,
-	output integer out_matrix[SIZE_A][SIZE_B]
+	output logic signed[21:0] out_matrix[SIZE_A][SIZE_B]
 );
 	
-	initial begin
+	/**initial begin
 		int fd;
 		$display("Before opening");
 		fd = $fopen(NAME, "r");
@@ -24,6 +24,6 @@ module read_mat_file #(
 		
 		$display("Closing");
 		$fclose(fd);
-	end
+	end**/
 
 endmodule

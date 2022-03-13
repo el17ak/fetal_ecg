@@ -50,12 +50,37 @@ set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 1.2V
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (SystemVerilog)"
 set_global_assignment -name EDA_TIME_SCALE "100 ps" -section_id eda_simulation
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "SYSTEMVERILOG HDL" -section_id eda_simulation
-set_global_assignment -name SYSTEMVERILOG_FILE fetal_ecg.sv
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
+set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH fetal_ecg_tb -section_id eda_simulation
+set_global_assignment -name EDA_TEST_BENCH_NAME fetal_ecg_tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id fetal_ecg_tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME fetal_ecg_tb -section_id fetal_ecg_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE fetal_ecg_tb.sv -section_id fetal_ecg_tb
+set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
+set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
+set_global_assignment -name EDA_DESIGN_ENTRY_SYNTHESIS_TOOL "<None>"
+set_global_assignment -name EDA_INPUT_DATA_FORMAT EDIF -section_id eda_design_synthesis
+set_global_assignment -name SYNTH_MESSAGE_LEVEL HIGH
+set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
+set_global_assignment -name ENABLE_REDUCED_MEMORY_MODE ON
+set_global_assignment -name SEARCH_PATH "c:\\intelfpga_lite\\17.1\\fetal_ecg\\unsaved\\use_sdram\\simulation\\submodules"
+set_global_assignment -name SEARCH_PATH "c:\\intelfpga_lite\\17.1\\fetal_ecg\\unsaved\\use_sdram\\synthesis\\submodules"
+set_global_assignment -name ALLOW_ANY_RAM_SIZE_FOR_RECOGNITION ON
+set_global_assignment -name HDL_MESSAGE_LEVEL LEVEL3
+set_global_assignment -name AUTO_RAM_RECOGNITION ON
+set_global_assignment -name STATE_MACHINE_PROCESSING "USER-ENCODED"
+set_global_assignment -name SYSTEMVERILOG_FILE to_double.sv
+set_global_assignment -name SOURCE_FILE double_exp.cmp
+set_global_assignment -name SDC_FILE fetal_ecg.sdc
+set_global_assignment -name QIP_FILE squareroot_ip.qip
+set_global_assignment -name QIP_FILE double_exp.qip
+set_global_assignment -name SYSTEMVERILOG_FILE fp_double.sv
+set_global_assignment -name SYSTEMVERILOG_FILE fetal_ecg.sv
 set_global_assignment -name SYSTEMVERILOG_FILE transpose_mat.sv
 set_global_assignment -name SYSTEMVERILOG_FILE whiten.sv
 set_global_assignment -name SYSTEMVERILOG_FILE substract_mat.sv
@@ -68,16 +93,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE fast_ica.sv
 set_global_assignment -name SYSTEMVERILOG_FILE data_packet.sv
 set_global_assignment -name SYSTEMVERILOG_FILE center.sv
 set_global_assignment -name SYSTEMVERILOG_FILE fetal_ecg_tb.sv
-set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
-set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH fetal_ecg_tb -section_id eda_simulation
-set_global_assignment -name EDA_TEST_BENCH_NAME fetal_ecg_tb -section_id eda_simulation
-set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id fetal_ecg_tb
-set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME fetal_ecg_tb -section_id fetal_ecg_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE fetal_ecg_tb.sv -section_id fetal_ecg_tb
-set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
-set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 set_global_assignment -name SYSTEMVERILOG_FILE read_mat_file.sv
-set_global_assignment -name TEXT_FILE testfile.txt
 set_global_assignment -name SYSTEMVERILOG_FILE uart_rx.sv
 set_global_assignment -name SYSTEMVERILOG_FILE uart_tx.sv
 set_global_assignment -name SYSTEMVERILOG_FILE collect_adc_data.sv
@@ -86,7 +102,6 @@ set_global_assignment -name SYSTEMVERILOG_FILE accumulate_adc_data.sv
 set_global_assignment -name SYSTEMVERILOG_FILE data_conversion.sv
 set_global_assignment -name SYSTEMVERILOG_FILE eigenvalue_decomposition.sv
 set_global_assignment -name SYSTEMVERILOG_FILE frobenius_norm.sv
-set_global_assignment -name TEXT_FILE testfile2.txt
 set_global_assignment -name SYSTEMVERILOG_FILE add_mat.sv
 set_global_assignment -name SYSTEMVERILOG_FILE scalar_substract_mat.sv
 set_global_assignment -name SYSTEMVERILOG_FILE find_eigen.sv
@@ -98,4 +113,25 @@ set_global_assignment -name SYSTEMVERILOG_FILE convergence_check.sv
 set_global_assignment -name SYSTEMVERILOG_FILE eigencalculation.sv
 set_global_assignment -name SYSTEMVERILOG_FILE init_decomposition.sv
 set_global_assignment -name SYSTEMVERILOG_FILE cov_mat_update.sv
+set_global_assignment -name SYSTEMVERILOG_FILE squareroot.sv
+set_global_assignment -name SYSTEMVERILOG_FILE w_prime.sv
+set_global_assignment -name SYSTEMVERILOG_FILE w_second.sv
+set_global_assignment -name SYSTEMVERILOG_FILE divide_num.sv
+set_global_assignment -name SYSTEMVERILOG_FILE unmixing_loop.sv
+set_global_assignment -name SYSTEMVERILOG_FILE fun_g.sv
+set_global_assignment -name SYSTEMVERILOG_FILE fun_g_prime.sv
+set_global_assignment -name SYSTEMVERILOG_FILE w_final.sv
+set_global_assignment -name SYSTEMVERILOG_FILE double_multiply_mat.sv
+set_global_assignment -name SYSTEMVERILOG_FILE double_frobenius_norm.sv
+set_global_assignment -name SYSTEMVERILOG_FILE double_substract_mat.sv
+set_global_assignment -name SYSTEMVERILOG_FILE double_divide_num.sv
+set_global_assignment -name SYSTEMVERILOG_FILE double_transpose_mat.sv
+set_global_assignment -name SYSTEMVERILOG_FILE LFSR.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ram_block.sv
+set_global_assignment -name QIP_FILE fp_mult.qip
+set_global_assignment -name QIP_FILE fp_add.qip
+set_global_assignment -name QIP_FILE fp_sub.qip
+set_global_assignment -name SIP_FILE fp_sub.sip
+set_global_assignment -name SYSTEMVERILOG_FILE fsm_whiten.sv
+set_global_assignment -name SYSTEMVERILOG_FILE fsm_eigenloop.sv
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
