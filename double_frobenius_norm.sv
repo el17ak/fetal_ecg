@@ -1,11 +1,11 @@
 import fp_double::*;
+import fsm_matop::*;
 
 module double_frobenius_norm #(
 	parameter SIZE_A = 8,
 	parameter SIZE_B = 8,
 	parameter CYCLES_M = 5,
-	parameter CYCLES_A = 7,
-	parameter CYCLES_S = 30
+	parameter CYCLES_A = 2
 )
 (
 	input logic clk,
@@ -15,6 +15,13 @@ module double_frobenius_norm #(
 	output double norm,
 	output logic f
 );
+	
+	state_matop state, next;
+	
+	integer count = 0;
+	integer next_count = 0;
+	integer inner_count = 1;
+	integer next_inner_count = 1;
 
 	double product[SIZE_A][SIZE_B];
 	
@@ -70,13 +77,86 @@ module double_frobenius_norm #(
 		.zero(zerosq)
 	);
 	
+	always_comb begin
+		next = XXX;
+		acc_new = '0;
+		next_count = count;
+		next_inner_count = inner_count;
+		f = '0;
+		case(state)
+			WAIT_MO: begin
+				if(start) begin
+					next = MULTIPLYING_MO;
+				end
+				else begin
+					next = WAIT_MO;
+				end
+			end
+			
+			MULTIPLYING_MO: begin
+				if(count == CYCLES_M) begin
+					acc_new = '1;
+					for(int i = 0; i < SIZE_A; i++) begin
+						acc_line[i] = product[i][0];
+					end
+					next_count = count + 1;
+					next = ACCUMULATING_MO;
+				end
+				else begin
+					next_count = count + 1;
+					next = MULTIPLYING_MO;
+				end
+			end
+			
+			ACCUMULATING_MO: begin
+				next_count = 32'd0;
+				if(inner_count >= SIZE_B + CYCLES_A + SIZE_A + CYCLES_A - 1) begin
+					next = FINISHED_MO;
+				end
+				
+				else if(inner_count >= SIZE_B + CYCLES_A + SIZE_A - 1) begin
+					for(int i = 0; i < SIZE_A; i++) begin
+						acc_line[i] = '0;
+					end
+					next_inner_count = inner_count + 1;
+					next = ACCUMULATING_MO;
+				end
+				
+				else if(inner_count >= SIZE_B + CYCLES_A) begin
+					for(int i = 0; i < SIZE_A; i++) begin
+						acc_line[0] = sum[inner_count-SIZE_B-CYCLES_A+1];
+					end
+					next_inner_count = inner_count + 1;
+					next = ACCUMULATING_MO;
+				end
+				
+				else if(inner_count >= SIZE_B) begin
+					for(int i = 0; i < SIZE_A; i++) begin
+						acc_line[i] = '0;
+					end
+					next_inner_count = inner_count + 1;
+					next = ACCUMULATING_MO;
+				end
+				
+				else begin
+					for(int i = 0; i < SIZE_A; i++) begin
+						acc_line[i] = product[i][inner_count];
+					end
+					next_inner_count = inner_count + 1;
+					next = ACCUMULATING_MO;
+				end
+			end
 	
-	integer count = 0;
-	integer inner_count = 1;
-	integer count_bis = 1;
+			FINISHED_MO: begin
+				next_inner_count = 32'd1;
+				next = FINISHED_MO;
+				f = '1;
+			end
+		endcase
+	end
 	
 	
-	always_ff @(posedge clk or posedge rst) begin
+	/**always_ff @(posedge clk or posedge rst) begin
 		if(rst) begin
 			count <= 0;
 			inner_count <= 1;
@@ -106,6 +186,7 @@ module double_frobenius_norm #(
 							count_bis <= count_bis + 1;
 						end
 						else if(inner_count == SIZE_B + CYCLES_A + SIZE_A + CYCLES_A - 1) begin
+							acc_line[0] <= '0;
 							f <= '1;
 						end
 					end
@@ -116,6 +197,18 @@ module double_frobenius_norm #(
 					count <= count + 1;
 				end
 			end
+		end
+	end**/
+	
+	
+	always_ff @(posedge clk or posedge rst) begin
+		if(rst) begin
+			state <= WAIT_MO;
+		end
+		else begin
+			state <= next;
+			count <= next_count;
+			inner_count <= next_inner_count;
 		end
 	end
 	

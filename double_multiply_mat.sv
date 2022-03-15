@@ -1,4 +1,5 @@
 import fp_double::*;
+import fsm_matop::*;
 
 module double_multiply_mat #(
 	parameter SIZE_A = 8,
@@ -17,8 +18,12 @@ module double_multiply_mat #(
 	output logic f
 );
 
+	state_matop state, next;
+
 	integer count = 0;
 	integer inner_count = 0;
+	integer next_count = 0;
+	integer next_inner_count = 0;
 
 	double sum[SIZE_A][SIZE_C];
 	double product[SIZE_A][SIZE_C][SIZE_B];
@@ -64,45 +69,85 @@ module double_multiply_mat #(
 	endgenerate
 	
 	
-	always_ff @(posedge clk or posedge rst) begin
-		if(rst) begin
-			f <= '0;
-			count <= 0;
-			inner_count <= 1;
-		end
-		else begin
-			if(start) begin
-				if(count == CYCLES_M) begin
-					acc_new <= 1;
-					for(int i = 0; i < SIZE_A; i++) begin
-						for(int j = 0; j < SIZE_C; j++) begin
-							acc_line[i][j] <= product[i][j][0];
-						end
-					end
-					count <= count + 1;
-				end
-				else if(count > CYCLES_M) begin
-					acc_new <= 0;
-					for(int i = 0; i < SIZE_A; i++) begin
-						for(int j = 0; j < SIZE_C; j++) begin
-							if(inner_count < SIZE_B) begin
-								acc_line[i][j] <= product[i][j][inner_count];
-							end
-							else if(inner_count == SIZE_B) begin
-								acc_line[i][j] <= '0;
-							end
-							else if(inner_count == SIZE_B + CYCLES_A) begin
-								f <= '1;
-							end
-						end
-					end
-					inner_count <= inner_count + 1;
-					count <= count + 1;
+	always_comb begin
+		f = '0;
+		acc_new = '0;
+		next_count = count;
+		next_inner_count = inner_count;
+	
+		case(state)
+			WAIT_MO: begin
+				f = '0;
+				if(start) begin
+					next = MULTIPLYING_MO;
 				end
 				else begin
-					count <= count + 1;
+					next = WAIT_MO;
 				end
 			end
+			
+			MULTIPLYING_MO: begin
+				if(count == CYCLES_M) begin
+					acc_new = '1;
+					for(int i = 0; i < SIZE_A; i++) begin
+						for(int j = 0; j < SIZE_C; j++) begin
+							acc_line[i][j] = product[i][j][0];
+						end
+					end
+					next_count = count + 1;
+					next = ACCUMULATING_MO;
+				end
+				else begin
+					next_count = count + 1;
+					next = MULTIPLYING_MO;
+				end
+			end
+			
+			ACCUMULATING_MO: begin
+				next_count = 0;
+				if(inner_count >= SIZE_B + CYCLES_A) begin
+					next = FINISHED_MO;
+				end
+				else if(inner_count >= SIZE_B) begin
+					for(int i = 0; i < SIZE_A; i++) begin
+						for(int j = 0; j < SIZE_C; j++) begin
+							acc_line[i][j] = '0;
+						end
+					end
+					next_inner_count = inner_count + 1;
+					next = ACCUMULATING_MO;
+				end
+				else begin
+					for(int i = 0; i < SIZE_A; i++) begin
+						for(int j = 0; j < SIZE_C; j++) begin
+							acc_line[i][j] = product[i][j][inner_count];
+						end
+					end
+					next_inner_count = inner_count + 1;
+					next = ACCUMULATING_MO;
+				end
+			end
+			
+			FINISHED_MO: begin
+				next_inner_count = 0;
+				f = '1;
+				next = FINISHED_MO;
+			end
+			
+		endcase
+	end
+	
+	
+	always_ff @(posedge clk or posedge rst) begin
+		if(rst) begin
+			state <= WAIT_MO;
+			count <= 32'd0;
+			inner_count <= 32'd1;
+		end
+		else begin
+			state <= next;
+			count <= next_count;
+			inner_count <= next_inner_count;
 		end
 	end
 	

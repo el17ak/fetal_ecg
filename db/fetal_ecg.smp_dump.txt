@@ -8,6 +8,27 @@ state.EIGENCALCULATION_EP 1 0 0 1 0 0
 state.COV_UPDATE_EP 1 0 1 0 0 0 
 state.FINISHED_EP 1 1 0 0 0 0 
 
+State Machine - |fetal_ecg|eigenprocess:fe|cov_mat_update:co_up|double_multiply_mat:mp3|state
+Name state.WAIT_MO state.FINISHED_MO state.ACCUMULATING_MO state.MULTIPLYING_MO 
+state.WAIT_MO 0 0 0 0 
+state.MULTIPLYING_MO 1 0 0 1 
+state.ACCUMULATING_MO 1 0 1 0 
+state.FINISHED_MO 1 1 0 0 
+
+State Machine - |fetal_ecg|eigenprocess:fe|eigencalculation:ei_ca|double_multiply_mat:mp2|state
+Name state.WAIT_MO state.FINISHED_MO state.ACCUMULATING_MO state.MULTIPLYING_MO 
+state.WAIT_MO 0 0 0 0 
+state.MULTIPLYING_MO 1 0 0 1 
+state.ACCUMULATING_MO 1 0 1 0 
+state.FINISHED_MO 1 1 0 0 
+
+State Machine - |fetal_ecg|eigenprocess:fe|eigencalculation:ei_ca|double_multiply_mat:mp1|state
+Name state.WAIT_MO state.FINISHED_MO state.ACCUMULATING_MO state.MULTIPLYING_MO 
+state.WAIT_MO 0 0 0 0 
+state.MULTIPLYING_MO 1 0 0 1 
+state.ACCUMULATING_MO 1 0 1 0 
+state.FINISHED_MO 1 1 0 0 
+
 State Machine - |fetal_ecg|eigenprocess:fe|eigenloop:ei_lo|state
 Name state.INITIALISING_EL state.FINISHED_EL state.CONVERGENCE_EL state.RECURSION_EL state.WAIT_EL 
 state.INITIALISING_EL 0 0 0 0 0 
@@ -16,6 +37,13 @@ state.RECURSION_EL 1 0 0 1 0
 state.CONVERGENCE_EL 1 0 1 0 0 
 state.FINISHED_EL 1 1 0 0 0 
 
+State Machine - |fetal_ecg|eigenprocess:fe|eigenloop:ei_lo|convergence_check:co_no|double_frobenius_norm:fn0|state
+Name state.WAIT_MO state.FINISHED_MO state.ACCUMULATING_MO state.MULTIPLYING_MO 
+state.WAIT_MO 0 0 0 0 
+state.MULTIPLYING_MO 1 0 0 1 
+state.ACCUMULATING_MO 1 0 1 0 
+state.FINISHED_MO 1 1 0 0 
+
 State Machine - |fetal_ecg|eigenprocess:fe|eigenloop:ei_lo|eigenrecursion:re_ve|state
 Name state.WAIT_ER state.FINISHED_ER state.DIVIDING_ER state.FROBENIUS_ER state.MULTIPLYING_ER 
 state.WAIT_ER 0 0 0 0 0 
@@ -23,3 +51,24 @@ state.MULTIPLYING_ER 1 0 0 0 1
 state.FROBENIUS_ER 1 0 0 1 0 
 state.DIVIDING_ER 1 0 1 0 0 
 state.FINISHED_ER 1 1 0 0 0 
+
+State Machine - |fetal_ecg|eigenprocess:fe|eigenloop:ei_lo|eigenrecursion:re_ve|double_frobenius_norm:fb_er|state
+Name state.WAIT_MO state.FINISHED_MO state.ACCUMULATING_MO state.MULTIPLYING_MO 
+state.WAIT_MO 0 0 0 0 
+state.MULTIPLYING_MO 1 0 0 1 
+state.ACCUMULATING_MO 1 0 1 0 
+state.FINISHED_MO 1 1 0 0 
+
+State Machine - |fetal_ecg|eigenprocess:fe|eigenloop:ei_lo|eigenrecursion:re_ve|double_multiply_mat:mp_er|state
+Name state.WAIT_MO state.FINISHED_MO state.ACCUMULATING_MO state.MULTIPLYING_MO 
+state.WAIT_MO 0 0 0 0 
+state.MULTIPLYING_MO 1 0 0 1 
+state.ACCUMULATING_MO 1 0 1 0 
+state.FINISHED_MO 1 1 0 0 
+
+State Machine - |fetal_ecg|eigenprocess:fe|init_decomposition:in_de|double_multiply_mat:mu_ma|state
+Name state.WAIT_MO state.FINISHED_MO state.ACCUMULATING_MO state.MULTIPLYING_MO 
+state.WAIT_MO 0 0 0 0 
+state.MULTIPLYING_MO 1 0 0 1 
+state.ACCUMULATING_MO 1 0 1 0 
+state.FINISHED_MO 1 1 0 0 
