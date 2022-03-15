@@ -8,22 +8,23 @@ module eigenloop #(
 (
 	input logic clk,
 	input logic rst,
-	input integer scale,
 	input logic start,
 	input double timed_matrix[SIZE_N][SIZE_N],
 	input double vectors_in[2][SIZE_N][1],
 	output double vector_out[SIZE_N][1],
 	output integer out_k,
-	output logic valid
+	output logic f
 );
 
 	state_eigenloop state, next;
 	
-	integer count_k = 0;
+	integer count_k, next_k;
 	
 	double vectors[3][SIZE_N][1];
 	
 	logic finished[3];
+	
+	assign out_k = count_k;
 	
 	
 //=======================================================
@@ -34,14 +35,14 @@ module eigenloop #(
 
 	double copy_vector_out[SIZE_N][1];
 	
-	recursive_vector #(.SIZE_N(SIZE_N)) re_ve(
+	eigenrecursion #(.SIZE_N(SIZE_N)) re_ve(
 		.clk(clk), 
-		.rst(rst_recursion),
+		.rst(rst),
 		.timed_matrix(timed_matrix),
 		.vector_in(vectors[1]), 
 		.vector_out(vectors[2]),
 		.f(finished[0]),
-		.start(start_recursion)
+		.start(start)
 	);
 	
 	
@@ -54,12 +55,12 @@ module eigenloop #(
 	
 	convergence_check #(.SIZE_N(SIZE_N)) co_no(
 		.clk(clk), 
-		.rst(rst_convergence),
-		.vector(vectors[0]),
-		.next_vector(vectors[1]),
+		.rst(rst),
+		.vector(vectors[1]),
+		.next_vector(vectors[2]),
 		.converged(converged), 
 		.f(finished[1]),
-		.start(start_convergence)
+		.start(finished[0])
 	);
 		
 	
@@ -150,61 +151,71 @@ module eigenloop #(
 	
 	
 	always_comb begin
-		next = XXX_EIGEN;
+		next = XXX_EL;
 		f = '0;
+		next_k = count_k;
+		vector_out = '{default: 0};
 		
 		case(state)
-			INITIALISATION_EIGEN: begin
-				vectors[0] = vectors_in[0];
-				vectors[1] = vectors_in[1];
-				vectors[2] = '0;
-				count_k = '0;
-				next = WAIT_EIGEN;
+			INITIALISING_EL: begin
+				next_k = 0;
+				if(start) begin
+					vectors[0] = vectors_in[0];
+					vectors[1] = vectors_in[1];
+					next = WAIT_EL;
+				end
+				else begin
+					next = INITIALISING_EL;
+				end
 			end
 			
-			WAIT_EIGEN: begin
+			WAIT_EL: begin
 				if(start) begin
-					next = RECURSION_EIGEN;
+					next = RECURSION_EL;
 					$display("Calculating recursive eigenvector");
 				end
 				else begin
-					next = WAIT_EIGEN;
+					next = WAIT_EL;
 				end
 			end
 			
-			RECURSION_EIGEN: begin
+			RECURSION_EL: begin
 				if(finished[0]) begin
-					next = CONVERGENCE_EIGEN;
+					next = CONVERGENCE_EL;
 					$display("\nCalculating convergence");
 				end
 				else begin
-					next = RECURSION_EIGEN;
+					next = RECURSION_EL;
 					$display(".");
 				end
 			end
 			
-			CONVERGENCE_EIGEN: begin
+			CONVERGENCE_EL: begin
 				if(finished[1]) begin
 					if(converged || (count_k > MAX_ITER)) begin
-						next = FINISHED_EIGEN;
+						next = FINISHED_EL;
 					end
 					else begin
 						vectors[0] = vectors[1];
 						vectors[1] = vectors[2];
-						count_k = count_k + 1;
-						next = WAIT_EIGEN;
+						next_k = count_k + 1;
+						next = WAIT_EL;
 					end
 				end
 				else begin
-					next = CONVERGENCE_EIGEN;
+					next = CONVERGENCE_EL;
 					$display(".");
 				end
 			end
 			
-			FINISHED_EIGEN: begin
+			FINISHED_EL: begin
 				vector_out = vectors[2];
 				f = '1;
-				next = FINISHED_EIGEN;
+				next = FINISHED_EL;
+			end
+			
+			default: begin
+				next = XXX_EL;
 			end
 		endcase
 	end
@@ -213,10 +224,12 @@ module eigenloop #(
 	
 	always_ff @(posedge clk or posedge rst) begin
 		if(rst) begin
-			state <= INITIALISATION_EIGEN;
+			state <= INITIALISING_EL;
+			count_k <= 0;
 		end
 		else begin
 			state <= next;
+			count_k <= next_k;
 		end
 	end
 	

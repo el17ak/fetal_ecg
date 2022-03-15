@@ -7,7 +7,8 @@ module eigenvalue_decomposition #(
 	input integer scale,
 	input double mat[SIZE_N][SIZE_N], //57-bit covariance matrix
 	output double eigenvector_mat[SIZE_N][SIZE_N][1],
-	output double eigenvalues[SIZE_N][1][1]
+	output double eigenvalues[SIZE_N][1][1],
+	output logic f
 );
 
 	//Addition of 16 fractional bits for fixed-point arithmetic
@@ -20,16 +21,15 @@ module eigenvalue_decomposition #(
 	generate
 		for(n = 0; n < SIZE_N; n++) begin: n_times
 			assign copy_mat[n+1] = out_mat[n]; //Feed output back into input.
-			find_eigen #(.SIZE_N(SIZE_N), .MAX_ITER(100)) fi_ei(
+			eigenprocess #(.SIZE_N(SIZE_N), .MAX_ITER(100)) fi_ei(
 				.clk(clk),
 				.rst(rst),
+				.start(start[n]),
 				.cov_matrix(copy_mat[n]),
 				.eigenvalue(eigenvalues[n]),
 				.eigenvector(eigenvector_mat[n]),
 				.cov_matrix_out(out_mat[n]),
-				.scale(scale),
-				.start(start[n]),
-				.valid(start[n+1])
+				.f(start[n+1])
 			);
 		end
 	endgenerate

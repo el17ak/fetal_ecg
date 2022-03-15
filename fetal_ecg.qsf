@@ -73,7 +73,7 @@ set_global_assignment -name SEARCH_PATH "c:\\intelfpga_lite\\17.1\\fetal_ecg\\un
 set_global_assignment -name ALLOW_ANY_RAM_SIZE_FOR_RECOGNITION ON
 set_global_assignment -name HDL_MESSAGE_LEVEL LEVEL3
 set_global_assignment -name AUTO_RAM_RECOGNITION ON
-set_global_assignment -name STATE_MACHINE_PROCESSING "USER-ENCODED"
+set_global_assignment -name STATE_MACHINE_PROCESSING "ONE-HOT"
 set_global_assignment -name SYSTEMVERILOG_FILE to_double.sv
 set_global_assignment -name SOURCE_FILE double_exp.cmp
 set_global_assignment -name SDC_FILE fetal_ecg.sdc
@@ -101,14 +101,11 @@ set_global_assignment -name SYSTEMVERILOG_FILE config_adc.sv
 set_global_assignment -name SYSTEMVERILOG_FILE accumulate_adc_data.sv
 set_global_assignment -name SYSTEMVERILOG_FILE data_conversion.sv
 set_global_assignment -name SYSTEMVERILOG_FILE eigenvalue_decomposition.sv
-set_global_assignment -name SYSTEMVERILOG_FILE frobenius_norm.sv
 set_global_assignment -name SYSTEMVERILOG_FILE add_mat.sv
 set_global_assignment -name SYSTEMVERILOG_FILE scalar_substract_mat.sv
-set_global_assignment -name SYSTEMVERILOG_FILE find_eigen.sv
 set_global_assignment -name SYSTEMVERILOG_FILE chain_output.sv
 set_global_assignment -name SYSTEMVERILOG_FILE unpacked_to_packed.sv
 set_global_assignment -name SYSTEMVERILOG_FILE eigenloop.sv
-set_global_assignment -name SYSTEMVERILOG_FILE recursive_vector.sv
 set_global_assignment -name SYSTEMVERILOG_FILE convergence_check.sv
 set_global_assignment -name SYSTEMVERILOG_FILE eigencalculation.sv
 set_global_assignment -name SYSTEMVERILOG_FILE init_decomposition.sv
@@ -124,7 +121,6 @@ set_global_assignment -name SYSTEMVERILOG_FILE w_final.sv
 set_global_assignment -name SYSTEMVERILOG_FILE double_multiply_mat.sv
 set_global_assignment -name SYSTEMVERILOG_FILE double_frobenius_norm.sv
 set_global_assignment -name SYSTEMVERILOG_FILE double_substract_mat.sv
-set_global_assignment -name SYSTEMVERILOG_FILE double_divide_num.sv
 set_global_assignment -name SYSTEMVERILOG_FILE double_transpose_mat.sv
 set_global_assignment -name SYSTEMVERILOG_FILE LFSR.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ram_block.sv
@@ -134,4 +130,16 @@ set_global_assignment -name QIP_FILE fp_sub.qip
 set_global_assignment -name SIP_FILE fp_sub.sip
 set_global_assignment -name SYSTEMVERILOG_FILE fsm_whiten.sv
 set_global_assignment -name SYSTEMVERILOG_FILE fsm_eigenloop.sv
+set_global_assignment -name SYSTEMVERILOG_FILE eigenrecursion.sv
+set_global_assignment -name SYSTEMVERILOG_FILE fsm_eigenrecursion.sv
+set_global_assignment -name QIP_FILE fp_div.qip
+set_global_assignment -name SYSTEMVERILOG_FILE eigenprocess.sv
+set_global_assignment -name SYSTEMVERILOG_FILE fsm_eigenprocess.sv
+set_global_assignment -name ALLOW_REGISTER_RETIMING OFF
+set_global_assignment -name ALLOW_POWER_UP_DONT_CARE OFF
+set_global_assignment -name REMOVE_REDUNDANT_LOGIC_CELLS ON
+set_global_assignment -name IGNORE_CARRY_BUFFERS ON
+set_global_assignment -name AUTO_RESOURCE_SHARING ON
+set_global_assignment -name QIP_FILE fp_acc.qip
+set_global_assignment -name SIP_FILE fp_acc.sip
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

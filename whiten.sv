@@ -16,10 +16,11 @@ module whiten #(
 (
 	input logic clk,
 	input logic rst,
+	input logic start,
 	input integer scale,
 	input logic signed[N_BITS-1:0] mat[SIZE_A][SIZE_B],
 	output double mat_out[SIZE_A][SIZE_B],
-	output f
+	output logic f
 );
 
 	state_whiten state, next;
@@ -47,6 +48,10 @@ module whiten #(
 	multiply_mat #(.SIZE_A(SIZE_A), .SIZE_B(SIZE_B), .SIZE_C(SIZE_A), .N_BITS_A(N_BITS+3), 
 		.N_BITS_B(N_BITS+3), .WIDTH_B(7)) mp0(.mat_a(centered_mat), 
 		.mat_b(transposed_centered_mat), .mat_out(cov_mat));
+		
+//==============================================
+// Covariance matrix and centered matrix transformation to double precision floating point format
+//==============================================
 		
 	genvar i, j, k;
 	generate
@@ -80,7 +85,7 @@ module whiten #(
 		mp1(.mat_a(transformed_eigvec_mat), .mat_b(double_centered_mat), 
 		.mat_out(mat_out));
 
-	always_ff @(posedge clk) begin
+	/**always_ff @(posedge clk) begin
 		if(rst == 0) begin
 			transformed_eigvec_mat <= '{default:0};
 		end
@@ -91,63 +96,63 @@ module whiten #(
 				end
 			end
 		end
-	end
+	end**/
 	
 	
 //=================================================
-// FSM Registers Update Loop	
+// FSM Registers and States Update Loop	
 //=================================================
 
 	always_comb begin
 		f = '0;
 		case(state)
-			WAIT: begin
+			WAIT_WH: begin
 				if(start) begin
-					next = INITIALISING;
+					next = INITIALISING_WH;
 				end
 				else begin
-					next = WAIT;
+					next = WAIT_WH;
 				end
 			end
 			
-			INITIALISING: begin
+			INITIALISING_WH: begin
 				if(finished[0]) begin
-					next = RECURSIVE_LOOP;
+					next = RECURSIVE_LOOP_WH;
 				end
 				else begin
-					next = INITIALISING;
+					next = INITIALISING_WH;
 				end
 			end
 			
-			RECURSIVE_LOOP: begin
+			RECURSIVE_LOOP_WH: begin
 				if(finished[1]) begin
-					next = EIGENVALUE;
+					next = EIGENVALUE_WH;
 				end
 				else begin
-					next = RECURSIVE_LOOP;
+					next = RECURSIVE_LOOP_WH;
 				end
 			end
 			
-			EIGENVALUE: begin
+			EIGENVALUE_WH: begin
 				if(finished[2]) begin
-					next = COV_UPDATE;
+					next = COV_UPDATE_WH;
 				end
 				else begin
-					next = EIGENVALUE;
+					next = EIGENVALUE_WH;
 				end
 			end
 			
-			COV_UPDATE: begin
+			COV_UPDATE_WH: begin
 				if(finished[3]) begin
-					next = FINISHED;
+					next = FINISHED_WH;
 				end
 				else begin
-					next = COV_UPDATE;
+					next = COV_UPDATE_WH;
 				end
 			end
 			
-			FINISHED: begin
-				next = FINISHED;
+			FINISHED_WH: begin
+				next = FINISHED_WH;
 				f = '1;
 			end
 		endcase
@@ -157,7 +162,7 @@ module whiten #(
 	
 	always_ff @(posedge clk or posedge rst) begin
 		if(rst) begin
-			state <= WAIT;
+			state <= WAIT_WH;
 		end
 		else begin
 			state <= next;

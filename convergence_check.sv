@@ -13,10 +13,12 @@ module convergence_check #(
 	input logic start,
 	input double vector[SIZE_N][1],
 	input double next_vector[SIZE_N][1],
-	output logic valid,
-	output logic converged,
-	output logic busy
+	output logic f,
+	output logic converged
 );
+
+
+	logic[1:0] finished;
 	
 //=======================================================
 // Substract current vector from previous one
@@ -27,9 +29,12 @@ module convergence_check #(
 	double_substract_mat #(.SIZE_A(SIZE_N), .SIZE_B(1)) sb0(
 		.clk(clk),
 		.rst(rst),
+		.start(start),
 		.mat_a(next_vector), 
 		.mat_b(vector),
-		.mat_out(convergence_vector));
+		.mat_out(convergence_vector),
+		.f(finished[0])
+	);
 		
 //=======================================================
 // Obtain the Frobenius norm of the difference
@@ -39,12 +44,17 @@ module convergence_check #(
 	
 	double convergence_norm[1][1];
 
-	double_frobenius_norm #(.SIZE_A(SIZE_N), .SIZE_B(1)) fn0(.clk(clk), 
-		.start(start), .mat(convergence_vector), .val(convergence_norm[0][0]), 
-		.valid(valid_frobenius));
+	double_frobenius_norm #(.SIZE_A(SIZE_N), .SIZE_B(1)) fn0(
+		.clk(clk),
+		.rst(rst),
+		.start(finished[0]),
+		.mat(convergence_vector),
+		.norm(convergence_norm[0][0]), 
+		.f(finished[1])
+	);
 			
 			
-	always_ff @(posedge clk) begin
+	/**always_ff @(posedge clk) begin
 		if(rst == 1) begin
 			converged <= 0;
 			valid <= 0;
@@ -67,6 +77,23 @@ module convergence_check #(
 				valid <= 0;
 			end
 		end
+	end **/
+	
+	
+	always_ff @(posedge clk or posedge rst) begin
+		if(rst) begin
+			f <= '0;
+		end
+		else begin
+			if(start) begin
+				f <= '0;
+				if(finished[1]) begin
+					f <= '1;
+				end
+			end
+		end
 	end
+	
+	
 
 endmodule

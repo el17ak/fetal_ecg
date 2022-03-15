@@ -5,15 +5,23 @@ module fetal_ecg_tb();
 	integer scale_tb;
 	logic clk;
 	logic rst_n;
+	
+	logic strt;
 
 	//fetal_ecg e(.scale(scale_tb), .clk(clk), .rst_n(rst_n));
 
 	initial begin
 		scale_tb <= 0;
+		strt <= 1;
 		rst_n <= 1;
 		clk <= 0;
 		#1;
 		clk <= 1;
+		#1;
+		clk <= 0;
+		#1;
+		clk <= 1;
+		rst_n <= 0;
 	end
 	
 	
@@ -29,10 +37,6 @@ module fetal_ecg_tb();
 		end
 	endgenerate
 	
-	logic start = 1;
-	logic busy, dbz;
-	logic signed[15:0] q, r;
-	
 	logic clk_50, dram_cas_n, DRAM_CKE, DRAM_CS_N, DRAM_RAS_N, DRAM_WE_N;
 	logic DRAM_CLK;
 	logic[7:0] LED;
@@ -41,7 +45,7 @@ module fetal_ecg_tb();
 	logic[12:0] DRAM_ADDR;
 	wire[15:0] DRAM_DQ;
 	logic valid;
-	logic[63:0] out;
+	logic out;
 
 	fetal_ecg fecg(.CLOCK_50(clk_50),
 		.LED(LED),
@@ -60,6 +64,7 @@ module fetal_ecg_tb();
 		.scale(scale_tb), 
 		.clk(clk),
 		.rst_n(rst_n),
+		.strt(strt),
 		.outer(out),
 		.valid(valid));
 	
@@ -71,12 +76,17 @@ module fetal_ecg_tb();
 	always begin
 		$display("Clock");
 		clk = ~clk;
-		if(scale_tb%32 == 31) begin
-			$display("Reset");
-			//rst_n = ~rst_n;
-		end
 		#1;
+		if(scale_tb > 9999999) begin
+			strt = 0;
+		end
 		scale_tb++;
+	end
+	
+	always_ff @(posedge clk) begin
+		if(out) begin
+			$display("\nA\n");
+		end
 	end
 	
 endmodule

@@ -43,26 +43,51 @@ module find_eigen #(
 	
 	
 	//Determine first two vectors to launch the loop with
-	init_decomposition #(.SIZE_N(SIZE_N)) in_de(.clk(clk), .rst(rst), 
-		.timed_matrix(cov_matrix), .first_vector(first_vector), 
-		.second_vector(second_vector), .start(start_init), .valid(state[0]));
+	init_decomposition #(.SIZE_N(SIZE_N)) in_de(
+		.clk(clk),
+		.rst(rst), 
+		.timed_matrix(cov_matrix),
+		.vector_init(first_vector), 
+		.second_vector(second_vector),
+		.start(start_init),
+		.valid(state[0])
+	);
 	
 	//Launch loop with initial vectors, keep in state until convergence
-	eigenloop #(.SIZE_N(SIZE_N), .MAX_ITER(MAX_ITER)) ei_lo(.clk(clk), .rst(rst), 
-		.timed_matrix(cov_matrix), .vectors_in(vectors_input), 
-		.vector_out(vector_output), .out_k(count_k), .scale(scale), 
-		.start(start_loop), .valid(state[1]));
+	eigenloop #(.SIZE_N(SIZE_N), .MAX_ITER(MAX_ITER)) ei_lo(
+		.clk(clk),
+		.rst(rst), 
+		.timed_matrix(cov_matrix),
+		.vectors_in(vectors_input), 
+		.vector_out(vector_output),
+		.out_k(count_k),
+		.scale(scale), 
+		.start(start_loop),
+		.valid(state[1])
+	);
 
 	//Calculate corresponding eigenvalue of obtained (converged) eigenvector
-	eigencalculation #(.SIZE_N(SIZE_N)) ei_ca(.clk(clk), .rst(rst), 
-		.timed_matrix(cov_matrix), .vector(copy_vector), 
-		.eigenvalue(eigenvalue_hold), .start(start_val), .valid(state[2]));
+	eigencalculation #(.SIZE_N(SIZE_N)) ei_ca(
+		.clk(clk),
+		.rst(rst), 
+		.timed_matrix(cov_matrix),
+		.vector(copy_vector), 
+		.eigenvalue(eigenvalue_hold),
+		.start(start_val),
+		.valid(state[2]));
 	
 	//Finally, remove influence of found eigenpair from data matrix
-	cov_mat_update #(.SIZE_N(SIZE_N)) co_up(.clk(clk), .rst(rst), 
-		.vector(copy_vector), .eigenvalue(eigenvalue), .count_n(count_n), 
-		.cov_matrix_in(cov_matrix), .cov_matrix_out(cov_matrix_out), 
-		.start(start_mat), .valid(state[3]));
+	cov_mat_update #(.SIZE_N(SIZE_N)) co_up(
+		.clk(clk),
+		.rst(rst), 
+		.vector(copy_vector),
+		.eigenvalue(eigenvalue),
+		.count_n(count_n), 
+		.cov_matrix_in(cov_matrix),
+		.cov_matrix_out(cov_matrix_out), 
+		.start(start_mat),
+		.valid(state[3])
+	);
 	
 	always_ff @(posedge clk) begin
 		valid <= 0;

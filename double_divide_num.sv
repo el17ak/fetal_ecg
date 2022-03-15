@@ -7,14 +7,14 @@ module double_divide_num
 	input double divisor,
 	input double dividend,
 	output double final_quotient,
-	output logic valid
+	output logic f
 );
 	
 	double accumulator[53];
 	double quotient[53];
 
 	always_comb begin
-		valid = 1'b0;
+		f = '0;
 		final_quotient = '{default: 0};
 		quotient = '{default: 0};
 		accumulator = '{default: 0};
