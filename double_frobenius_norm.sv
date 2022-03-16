@@ -5,7 +5,8 @@ module double_frobenius_norm #(
 	parameter SIZE_A = 8,
 	parameter SIZE_B = 8,
 	parameter CYCLES_M = 5,
-	parameter CYCLES_A = 2
+	parameter CYCLES_A = 2,
+	parameter CYCLES_S = 30
 )
 (
 	input logic clk,
@@ -24,6 +25,7 @@ module double_frobenius_norm #(
 	integer next_inner_count = 1;
 
 	double product[SIZE_A][SIZE_B];
+	double temp;
 	
 	logic[SIZE_A-1:0][SIZE_B-1:0] of, uf, nan, zero;
 	logic[SIZE_A-1:0] of_a, uf_a, nan_a;
@@ -64,6 +66,7 @@ module double_frobenius_norm #(
 	endgenerate
 	
 	logic nansq, ofsq, zerosq;
+	assign temp = sum[0];
 	
 	//Retrieve square root of sum of all squared matrix elements
 	squareroot_ip sq0(
@@ -148,9 +151,14 @@ module double_frobenius_norm #(
 			end
 	
 			FINISHED_MO: begin
-				next_inner_count = 32'd1;
+				next_inner_count = 32'd0;
 				next = FINISHED_MO;
-				f = '1;
+				if(count >= CYCLES_S) begin
+					f = '1;
+				end
+				else begin
+					next_count = count + 1;
+				end
 			end
 		endcase
 	end
