@@ -3,6 +3,7 @@
 //=======================================================
 
 import fp_double::*;
+import fsm_conv::*;
 
 module convergence_check #(
 	parameter SIZE_N = 8
@@ -17,6 +18,7 @@ module convergence_check #(
 	output logic converged
 );
 
+	state_conv state, next;
 
 	logic[1:0] finished;
 	
@@ -52,6 +54,18 @@ module convergence_check #(
 		.norm(convergence_norm[0][0]), 
 		.f(finished[1])
 	);
+	
+	logic gt;
+	assign converged = ~gt;
+	
+	fp_gt grth(
+		.aclr(rst),
+		.clk_en(finished[1]),
+		.clock(clk),
+		.dataa(convergence_norm[0][0]),
+		.datab({1'b0,11'd1019,52'd1}),
+		.agb(gt)
+	);
 			
 			
 	/**always_ff @(posedge clk) begin
@@ -80,17 +94,54 @@ module convergence_check #(
 	end **/
 	
 	
-	always_ff @(posedge clk or posedge rst) begin
-		if(rst) begin
-			f <= '0;
-		end
-		else begin
-			if(start) begin
-				f <= '0;
-				if(finished[1]) begin
-					f <= '1;
+	always_comb begin
+		next = XXX_CV;
+		f = '0;
+		
+		case(state)
+			WAIT_CV: begin
+				if(start) begin
+					next = SUBSTRACTING_CV;
+				end
+				else begin
+					next = WAIT_CV;
 				end
 			end
+			
+			SUBSTRACTING_CV: begin
+				if(finished[0]) begin
+					next = FROBENIUS_CV;
+				end
+				else begin
+					next = SUBSTRACTING_CV;
+				end
+			end
+			
+			FROBENIUS_CV: begin
+				if(finished[1]) begin
+					next = FINISHED_CV;
+				end
+				else begin
+					next = FROBENIUS_CV;
+				end
+			end
+			
+			FINISHED_CV: begin
+				next = FINISHED_CV;
+				f = '1;
+			end
+			
+		endcase
+	end
+	
+	
+	
+	always_ff @(posedge clk or posedge rst) begin
+		if(rst) begin
+			state <= WAIT_CV;
+		end
+		else begin
+			state <= next;
 		end
 	end
 	

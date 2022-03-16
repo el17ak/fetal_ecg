@@ -10,7 +10,7 @@ module read_mat_file #(
 	output logic signed[BITS-1:0] out_matrix[SIZE_A][SIZE_B]
 );
 	
-	initial begin
+	/**initial begin
 		int fd;
 		$display("Before opening");
 		fd = $fopen(NAME, "r");
@@ -25,6 +25,7 @@ module read_mat_file #(
 		
 		$display("Closing");
 		$fclose(fd);
-	end
+	end**/
+	
 
 endmodule

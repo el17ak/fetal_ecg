@@ -1,4 +1,5 @@
 import fp_double::*;
+import fsm_eigencalculation::*;
 
 module eigencalculation #(
 	parameter SIZE_N = 8

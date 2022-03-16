@@ -1,14 +1,11 @@
 INTENDED_DEVICE_FAMILY="Cyclone IV E"
-PIPELINE=30
-ROUNDING=TO_NEAREST
+PIPELINE=1
 WIDTH_EXP=11
 WIDTH_MAN=52
 DEVICE_FAMILY="Cyclone IV E"
 aclr
 clk_en
 clock
-data
-nan
-overflow
-result
-zero
+dataa
+datab
+agb

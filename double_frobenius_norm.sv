@@ -212,6 +212,8 @@ module double_frobenius_norm #(
 	always_ff @(posedge clk or posedge rst) begin
 		if(rst) begin
 			state <= WAIT_MO;
+			count <= 32'd0;
+			inner_count <= 32'd1;
 		end
 		else begin
 			state <= next;

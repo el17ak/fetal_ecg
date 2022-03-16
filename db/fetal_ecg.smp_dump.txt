@@ -37,6 +37,13 @@ state.RECURSION_EL 1 0 0 1 0
 state.CONVERGENCE_EL 1 0 1 0 0 
 state.FINISHED_EL 1 1 0 0 0 
 
+State Machine - |fetal_ecg|eigenprocess:fe|eigenloop:ei_lo|convergence_check:co_no|state
+Name state.WAIT_CV state.FINISHED_CV state.FROBENIUS_CV state.SUBSTRACTING_CV 
+state.WAIT_CV 0 0 0 0 
+state.SUBSTRACTING_CV 1 0 0 1 
+state.FROBENIUS_CV 1 0 1 0 
+state.FINISHED_CV 1 1 0 0 
+
 State Machine - |fetal_ecg|eigenprocess:fe|eigenloop:ei_lo|convergence_check:co_no|double_frobenius_norm:fn0|state
 Name state.WAIT_MO state.FINISHED_MO state.ACCUMULATING_MO state.MULTIPLYING_MO 
 state.WAIT_MO 0 0 0 0 

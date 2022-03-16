@@ -21,8 +21,10 @@ module eigenloop #(
 	integer count_k, next_k;
 	
 	double vectors[3][SIZE_N][1];
+	double first_vector[SIZE_N][1], second_vector[SIZE_N][1];
 	
-	logic finished[3];
+	logic finished[2];
+	logic[1:0] rst_n;
 	
 	assign out_k = count_k;
 	
@@ -37,7 +39,7 @@ module eigenloop #(
 	
 	eigenrecursion #(.SIZE_N(SIZE_N)) re_ve(
 		.clk(clk), 
-		.rst(rst),
+		.rst(rst | rst_n[0]),
 		.timed_matrix(timed_matrix),
 		.vector_in(vectors[1]), 
 		.vector_out(vectors[2]),
@@ -55,7 +57,7 @@ module eigenloop #(
 	
 	convergence_check #(.SIZE_N(SIZE_N)) co_no(
 		.clk(clk), 
-		.rst(rst),
+		.rst(rst | rst_n[1]),
 		.vector(vectors[1]),
 		.next_vector(vectors[2]),
 		.converged(converged), 
@@ -148,20 +150,24 @@ module eigenloop #(
 		end
 	end**/
 	
-	
+	logic init, next_init;
+
 	
 	always_comb begin
 		next = XXX_EL;
 		f = '0;
 		next_k = count_k;
+		next_init = init;
 		vector_out = '{default: 0};
+		rst_n = 2'b00;
 		
 		case(state)
 			INITIALISING_EL: begin
 				next_k = 0;
 				if(start) begin
-					vectors[0] = vectors_in[0];
-					vectors[1] = vectors_in[1];
+					next_init = '0;
+					first_vector = vectors_in[0];
+					second_vector = vectors_in[1];
 					next = WAIT_EL;
 				end
 				else begin
@@ -171,8 +177,18 @@ module eigenloop #(
 			
 			WAIT_EL: begin
 				if(start) begin
-					next = RECURSION_EL;
-					$display("Calculating recursive eigenvector");
+					if(init == '0) begin
+						rst_n[0] = '1;
+						next_init = '1;
+						next = WAIT_EL;
+					end
+					else begin
+						rst_n[0] = 0;
+						vectors[0] = first_vector;
+						vectors[1] = second_vector;
+						next = RECURSION_EL;
+						$display("Calculating recursive eigenvector");
+					end
 				end
 				else begin
 					next = WAIT_EL;
@@ -181,6 +197,7 @@ module eigenloop #(
 			
 			RECURSION_EL: begin
 				if(finished[0]) begin
+					rst_n[1] = 1;
 					next = CONVERGENCE_EL;
 					$display("\nCalculating convergence");
 				end
@@ -196,8 +213,9 @@ module eigenloop #(
 						next = FINISHED_EL;
 					end
 					else begin
-						vectors[0] = vectors[1];
-						vectors[1] = vectors[2];
+						next_init = '0;
+						first_vector = vectors[1];
+						second_vector = vectors[2];
 						next_k = count_k + 1;
 						next = WAIT_EL;
 					end
@@ -226,10 +244,12 @@ module eigenloop #(
 		if(rst) begin
 			state <= INITIALISING_EL;
 			count_k <= 0;
+			init <= '0;
 		end
 		else begin
 			state <= next;
 			count_k <= next_k;
+			init <= next_init;
 		end
 	end
 	
