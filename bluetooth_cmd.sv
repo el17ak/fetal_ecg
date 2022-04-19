@@ -1,11 +1,11 @@
-module bluetooth_tx #(
-	parameter N_BITS = 32
-	parameter CLKS_PER_BIT = 5000
+module bluetooth_cmd #(
+	parameter N_BITS = 8,
+	parameter CLKS_PER_BIT = 55
 )
 (
 	input logic clk,
 	input logic in_tx_start,
-	input logic[N_BITS-1:0] in_tx_data, 
+	input logic[N_BITS-1:0] in_tx_cmd, 
 	output logic out_tx_active,
 	output logic out_tx_serial,
 	output logic out_tx_done
@@ -15,7 +15,7 @@ module bluetooth_tx #(
    
 	state_tx state = IDLE;
 	logic[N_BITS-1:0] count = 0;
-	logic[7:0] bit_index = 0;
+	logic[2:0] bit_index = 0;
 	logic[N_BITS-1:0] loc_tx_data = 0;
 	logic loc_tx_done = 0;
 	logic loc_tx_active = 0;

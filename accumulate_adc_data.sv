@@ -13,12 +13,11 @@ module accumulate_adc_data(
 	output logic ready
 );
 
-	int j;
+	int j = 32'd512; //Set j to the number M of columns we want in the matrix
 	import data_conversion::*;
 
 	initial begin
 		mat = '{default:0};
-		j = 512; //Set j to the number M of columns we want in the matrix
 		ready = 1'd0;
 	end
 	
