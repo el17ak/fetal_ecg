@@ -58,6 +58,7 @@ module cov_mat_update #(
 		.zero(zero)
 	);
 	
+	logic del_start, next_del_start;
 	
 	scalar_substract_mat #(.SIZE_A(SIZE_N), .SIZE_B(SIZE_N)) ss0(
 		.clk(clk),
@@ -69,11 +70,10 @@ module cov_mat_update #(
 		.f(finished[1])
 	);
 	
-	logic del_start, next_del_start;
 	integer count, next_count;
 	
 	always_comb begin
-		next = 'x;
+		next = XXX_CU;
 		f = '0;
 		next_del_start = del_start;
 		next_count = count;

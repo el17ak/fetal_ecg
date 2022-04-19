@@ -51,10 +51,12 @@ module w_prime #(
 	double vector_mult[SIZE_N][1];
 	
 	//Transpose (1 x M) vector to a (M x 1) vector
-	double_transpose_mat #(.SIZE_A(1), .SIZE_B(SIZE_M)) tp1(.mat(common_term), 
-		.mat_out(transposed_common_term));
+	double_transpose_mat #(.SIZE_A(1), .SIZE_B(SIZE_M)) tp1(
+		.mat(common_term), 
+		.mat_out(transposed_common_term)
+	);
 	
-	//Retrieve g(u) where u is the common term between both branches
+	//Retrieve g(u) where u is the comsmon term between both branches
 	fun_g #(.SIZE_A(1), .SIZE_B(SIZE_M)) g0(.mat(transposed_common_term), .mat_out(g_out)); //put hold on output
 	
 	//Multiply the data matrix by the result of the g function -> (N x 1)

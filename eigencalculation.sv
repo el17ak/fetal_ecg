@@ -14,6 +14,8 @@ module eigencalculation #(
 	output logic f
 );
 
+	state_eigencalculation state, next;
+
 	double transposed_vector[1][SIZE_N];
 	double intermediary_term[1][SIZE_N];
 	double eigenvalue_hold[1][1];
@@ -64,17 +66,50 @@ module eigencalculation #(
 		end
 	end**/
 	
-	always_ff @(posedge clk or posedge rst) begin
-		if(rst) begin
-			f = '0;
-		end
-		else begin
-			if(start) begin
-				f = '0;
-				if(finished[1]) begin
-					f = '1;
+	always_comb begin
+		next = XXX_EC;
+		f = '0;
+		case(state)
+			WAIT_EC: begin
+				if(start) begin
+					next = MULTIPLYING1_EC;
+				end
+				else begin
+					next = WAIT_EC;
 				end
 			end
+			
+			MULTIPLYING1_EC: begin
+				if(finished[0]) begin
+					next = MULTIPLYING2_EC;
+				end
+				else begin
+					next = MULTIPLYING1_EC;
+				end
+			end
+			
+			MULTIPLYING2_EC: begin
+				if(finished[1]) begin
+					next = FINISHED_EC;
+				end
+				else begin
+					next = MULTIPLYING2_EC;
+				end
+			end
+			
+			FINISHED_EC: begin
+				f = '1;
+				next = FINISHED_EC;
+			end
+		endcase
+	end
+	
+	always_ff @(posedge clk or posedge rst) begin
+		if(rst) begin
+			state <= WAIT_EC;
+		end
+		else begin
+			state <= next;
 		end
 	end
 	

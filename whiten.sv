@@ -104,6 +104,7 @@ module whiten #(
 //=================================================
 
 	always_comb begin
+		next = XXX_WH;
 		f = '0;
 		case(state)
 			WAIT_WH: begin

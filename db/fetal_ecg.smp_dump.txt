@@ -8,12 +8,27 @@ state.EIGENCALCULATION_EP 1 0 0 1 0 0
 state.COV_UPDATE_EP 1 0 1 0 0 0 
 state.FINISHED_EP 1 1 0 0 0 0 
 
+State Machine - |fetal_ecg|eigenprocess:fe|cov_mat_update:co_up|state
+Name state.WAIT_CU state.FINISHED_CU state.SUBSTRACTING_CU state.MULTIPLYING2_CU state.MULTIPLYING1_CU 
+state.WAIT_CU 0 0 0 0 0 
+state.MULTIPLYING1_CU 1 0 0 0 1 
+state.MULTIPLYING2_CU 1 0 0 1 0 
+state.SUBSTRACTING_CU 1 0 1 0 0 
+state.FINISHED_CU 1 1 0 0 0 
+
 State Machine - |fetal_ecg|eigenprocess:fe|cov_mat_update:co_up|double_multiply_mat:mp3|state
 Name state.WAIT_MO state.FINISHED_MO state.ACCUMULATING_MO state.MULTIPLYING_MO 
 state.WAIT_MO 0 0 0 0 
 state.MULTIPLYING_MO 1 0 0 1 
 state.ACCUMULATING_MO 1 0 1 0 
 state.FINISHED_MO 1 1 0 0 
+
+State Machine - |fetal_ecg|eigenprocess:fe|eigencalculation:ei_ca|state
+Name state.WAIT_EC state.FINISHED_EC state.MULTIPLYING2_EC state.MULTIPLYING1_EC 
+state.WAIT_EC 0 0 0 0 
+state.MULTIPLYING1_EC 1 0 0 1 
+state.MULTIPLYING2_EC 1 0 1 0 
+state.FINISHED_EC 1 1 0 0 
 
 State Machine - |fetal_ecg|eigenprocess:fe|eigencalculation:ei_ca|double_multiply_mat:mp2|state
 Name state.WAIT_MO state.FINISHED_MO state.ACCUMULATING_MO state.MULTIPLYING_MO 
