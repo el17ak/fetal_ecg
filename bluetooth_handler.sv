@@ -41,9 +41,27 @@ module bluetooth_handler #(
 		case(state)
 			
 			WAIT: begin
+				tx_start[1] = 1'b0;
 				if(start) begin
 					next = TRANSMIT;
 				end
+			end
+			
+			TRANSMIT: begin
+				if(!tx_active[1] || tx_done[1]) begin
+					if(count < N_SAMPLES) begin
+						tx_data = in_data[count];
+						tx_start[1] = 1'b1;
+						next_count = count + 1;
+					end
+					else begin
+						next = DONE;
+					end
+				end
+			end
+			
+			DONE: begin
+				tx_start[1] = 1'b0;
 			end
 		
 		endcase

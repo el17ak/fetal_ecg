@@ -89,15 +89,12 @@ set_global_assignment -name ALLOW_ANY_SHIFT_REGISTER_SIZE_FOR_RECOGNITION ON
 set_global_assignment -name ALLOW_SHIFT_REGISTER_MERGING_ACROSS_HIERARCHIES ALWAYS
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA ON
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name SYSTEMVERILOG_FILE bluetooth_cmd.sv
 set_global_assignment -name SYSTEMVERILOG_FILE to_double.sv
 set_global_assignment -name SOURCE_FILE double_exp.cmp
 set_global_assignment -name SDC_FILE fetal_ecg.sdc
 set_global_assignment -name QIP_FILE squareroot_ip.qip
 set_global_assignment -name QIP_FILE double_exp.qip
 set_global_assignment -name SYSTEMVERILOG_FILE fp_double.sv
-set_global_assignment -name SYSTEMVERILOG_FILE fetal_ecg.sv
 set_global_assignment -name SYSTEMVERILOG_FILE transpose_mat.sv
 set_global_assignment -name SYSTEMVERILOG_FILE whiten.sv
 set_global_assignment -name SYSTEMVERILOG_FILE substract_mat.sv
@@ -158,6 +155,4 @@ set_global_assignment -name QIP_FILE fp_gt.qip
 set_global_assignment -name SYSTEMVERILOG_FILE fsm_cov_update.sv
 set_global_assignment -name SYSTEMVERILOG_FILE fsm_eigencalculation.sv
 set_global_assignment -name SYSTEMVERILOG_FILE fsm_fastica.sv
-set_global_assignment -name SYSTEMVERILOG_FILE bluetooth_tx.sv
-set_global_assignment -name SYSTEMVERILOG_FILE fsm_bluetooth.sv
-set_global_assignment -name SYSTEMVERILOG_FILE bluetooth_handler.sv
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

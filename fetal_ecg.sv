@@ -76,8 +76,8 @@ module fetal_ecg(
 	logic signed[64-1:0] mat_out[8][32];
 	logic signed[22-1:0] mat_c[8][32];
 
-	read_mat_file #(.NAME("filename.txt"), .TYPE(0), .SIZE_A(368), .SIZE_B(8), .BITS(64)) rf0(.out_matrix(mat_a), .clk(clk));
-	transpose_mat #(.SIZE_A(8), .SIZE_B(32), .N_BITS(22)) tp0 (.mat(mat_c), .mat_out(mat_b));	
+	//read_mat_file #(.NAME("filename.txt"), .TYPE(0), .SIZE_A(368), .SIZE_B(8), .BITS(22)) rf0(.out_matrix(mat_a), .clk(clk));
+	//transpose_mat #(.SIZE_A(8), .SIZE_B(32), .N_BITS(22)) tp0 (.mat(mat_c), .mat_out(mat_b));	
 	//whiten #(.SIZE_A(8), .SIZE_B(32), .N_BITS(22)) wh(.clk(clk), .rst(rst_n), .mat(mat_c), .mat_out(mat_out), .scale(scale));
 
 	double mat_cov[SIZE_N][SIZE_N];
@@ -97,7 +97,7 @@ module fetal_ecg(
 	
 	assign outer = &(mat_cov_out[0][0]);
 	
-	eigenprocess #(.SIZE_N(8), .MAX_ITER(100)) fe(
+	/*eigenprocess #(.SIZE_N(8), .MAX_ITER(100)) fe(
 		.clk(clk),
 		.rst(rst_n),
 		.start(strt),
@@ -106,7 +106,7 @@ module fetal_ecg(
 		.eigenvector(mat_eigvec),
 		.cov_matrix_out(mat_cov_out),
 		.f(valid)
-	);
+	);*/
 	
 	//config_adc cf0();
 	
@@ -119,14 +119,14 @@ module fetal_ecg(
 	//integer matrix_b[8][368];
 	//integer matrix_out[8][368];
 	
-	//read_mat_file #(.NAME("filename.txt"), .TYPE(0), .SIZE_A(368), .SIZE_B(8)) rf0(.out_matrix(matrix_a), .clk(clk));
+	read_mat_file #(.NAME("filename.txt"), .TYPE(0), .SIZE_A(368), .SIZE_B(8), .BITS(22)) rf0(.out_matrix(matrix_a), .clk(clk));
 	//read_mat_file #(.NAME("testfile2.txt"), .TYPE(0), .SIZE_A(8), .SIZE_B(8)) rf1(.out_matrix(matrix_b));
 	
 	//scalar_multiply_mat #(.SIZE_A(8), .SIZE_B(8)) tb0(.scale(5), .mat(matrix_in), .mat_out(matrix_out));
 
-	//multiply_mat #(.SIZE_A(8), .SIZE_B(8), .SIZE_C(8)) mp0(.mat_a(matrix_a), .mat_b(matrix_b), .mat_out(matrix_out));
+	multiply_mat #(.SIZE_A(368), .SIZE_B(8), .SIZE_C(8)) mp0(.mat_a(matrix_a), .mat_b(matrix_b), .mat_out(matrix_out));
 	
-	//transpose_mat #(.SIZE_A(368), .SIZE_B(8)) tp0 (.mat(matrix_a), .mat_out(matrix_b));
+	transpose_mat #(.SIZE_A(368), .SIZE_B(8)) tp0 (.mat(matrix_a), .mat_out(matrix_b));
 
 	//whiten #(.SIZE_A(8), .SIZE_B(368)) wh0(.clk(clk), .mat(matrix_b), .mat_out(matrix_out), .rst(rst_n));
 	
